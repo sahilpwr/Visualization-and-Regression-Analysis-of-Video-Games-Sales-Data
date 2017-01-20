@@ -1,0 +1,19 @@
+ods graphics / reset imagemap;
+
+/*--SGPLOT proc statement--*/
+proc sgplot data=WORK.IMPORT;
+	/*--TITLE and FOOTNOTE--*/
+	title "User Score vs. User Count Scatter Plot";
+
+	/*--Scatter plot settings--*/
+	scatter x=User_Score y=User_Count / transparency=0.0 name='Scatter';
+
+	/*--X Axis--*/
+	xaxis grid;
+
+	/*--Y Axis--*/
+	yaxis grid;
+run;
+
+ods graphics / reset;
+title;
