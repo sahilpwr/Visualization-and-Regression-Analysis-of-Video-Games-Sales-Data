@@ -1,0 +1,72 @@
+%let stat=Mean;
+
+/*--Compute axis ranges--*/
+proc means data=WORK.IMPORT1 noprint;
+	class Genre / order=data;
+	var Critic_Score Global_Sales;
+	output out=_BarLine_(where=(_type_ >
+         0)) mean(Critic_Score Global_Sales)=resp1 resp2;
+	;
+run;
+
+/*--Compute response min and max values (include 0 in computations)--*/
+data _null_;
+	retain respmin 0 respmax 0;
+	retain respmin1 0 respmax1 0 respmin2 0 respmax2 0;
+	set _BarLine_ end=last;
+	respmin1=min(respmin1, resp1);
+	respmin2=min(respmin2, resp2);
+	respmax1=max(respmax1, resp1);
+	respmax2=max(respmax2, resp2);
+
+	if last then
+		do;
+			call symputx ("respmin1", respmin1);
+			call symputx ("respmax1", respmax1);
+			call symputx ("respmin2", respmin2);
+			call symputx ("respmax2", respmax2);
+			call symputx ("respmin", min(respmin1, respmin2));
+			call symputx ("respmax", max(respmax1, respmax2));
+		end;
+run;
+
+/*--Define a macro for offset--*/
+%macro offset ();
+	%if %sysevalf(&respmin eq 0) %then
+		%do;
+			offsetmin=0 %end;
+
+	%if %sysevalf(&respmax eq 0) %then
+		%do;
+			offsetmax=0 %end;
+%mend offset;
+
+/*--Set output size--*/
+ods graphics / reset imagemap;
+
+/*--SGPLOT proc statement--*/
+proc sgplot data=WORK.IMPORT1 nocycleattrs;
+	/*--TITLE and FOOTNOTE--*/
+	title "Critic Score and Global Sales Anlaysis by Genre";
+
+	/*--Bar chart settings--*/
+	vbar Genre / response=Critic_Score stat=Mean name='Bar';
+
+	/*--Line chart settings--*/
+	vline Genre / response=Global_Sales lineattrs=(thickness=5) y2axis stat=Mean 
+		name='Line';
+
+	/*--Category Axis--*/
+	xaxis;
+
+	/*--Bar Response Axis--*/
+	yaxis grid min=&respmin1 max=&respmax1 
+                %offset();
+
+	/*--Line Response Axis--*/
+	y2axis min=&respmin2 max=&respmax2 
+                %offset();
+run;
+
+ods graphics / reset;
+title;
