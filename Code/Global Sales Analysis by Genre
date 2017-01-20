@@ -1,0 +1,16 @@
+ods graphics / reset imagemap;
+
+/*--SGPLOT proc statement--*/
+proc sgplot data=WORK.IMPORT;
+	/*--TITLE and FOOTNOTE--*/
+	title "Global Sales Analysis by Genre";
+
+	/*--Bar chart settings--*/
+	vbar Genre / response=Global_Sales stat=Mean name='Bar';
+
+	/*--Response Axis--*/
+	yaxis grid;
+run;
+
+ods graphics / reset;
+title;
