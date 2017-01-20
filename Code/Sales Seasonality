@@ -1,0 +1,17 @@
+ods graphics / reset imagemap;
+
+/*--SGPLOT proc statement--*/
+proc sgplot data=WORK.IMPORT;
+	/*--TITLE and FOOTNOTE--*/
+	title "Sales Seasonality";
+
+	/*--Line chart settings--*/
+	vline Year_of_Release / response=Global_Sales lineattrs=(thickness=5) 
+		stat=Mean;
+
+	/*--Response Axis--*/
+	yaxis grid;
+run;
+
+ods graphics / reset;
+title;
