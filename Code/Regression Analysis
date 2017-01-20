@@ -1,0 +1,18 @@
+ods noproctitle;
+ods graphics / imagemap=on;
+
+proc glmselect data=WORK.IMPORT1 outdesign(addinputvars)=Work.reg_design;
+	class Global_Sales / param=glm;
+	model Critic_Score=Global_Sales / showpvalues selection=none;
+run;
+
+proc reg data=Work.reg_design alpha=0.05 plots(only 
+		maxpoints=none)=(diagnostics residuals observedbypredicted);
+	where Global_Sales is not missing;
+	ods select DiagnosticsPanel ResidualPlot ObservedByPredicted;
+	model Critic_Score=&_GLSMOD /;
+	run;
+quit;
+
+proc delete data=Work.reg_design;
+run;
